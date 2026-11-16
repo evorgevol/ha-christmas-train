@@ -2,9 +2,11 @@
   "domain": "christmas_train",
   "name": "Christmas Train",
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/remote/",
+  "codeowners": ["@evorgevol"],
+  "documentation": "https://github.com/evorgevol/ha-christmas-train",
   "integration_type": "device",
   "iot_class": "assumed_state",
+  "issue_tracker": "https://github.com/evorgevol/ha-christmas-train/issues",
   "requirements": [],
   "version": "1.0.0"
 }

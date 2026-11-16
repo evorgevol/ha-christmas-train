@@ -27,19 +27,32 @@ keep a physical way to stop or disconnect the train.
 
 ## Installation
 
+### HACS
+
+1. In HACS, open the three-dot menu and select **Custom repositories**.
+2. Add `https://github.com/evorgevol/ha-christmas-train` as an
+   **Integration**.
+3. Find **Christmas Train** in HACS and download it.
+4. Restart Home Assistant.
+
+### Manual
+
 1. Copy the `custom_components/christmas_train` folder into your Home
    Assistant configuration directory's `custom_components` folder, preserving
    other custom integrations.
-2. Restart Home Assistant. Under **Settings > Devices & services > Add
+2. Restart Home Assistant.
+
+### Configuration
+
+1. Under **Settings > Devices & services > Add
    integration**, search for **Christmas Train**.
-3. Select `remote.x2_hub_remote` and enter Sofabaton device ID `2`, or supply
+2. Select `remote.x2_hub_remote` and enter Sofabaton device ID `2`, or supply
    the equivalent values for your setup.
-4. Open the Christmas Train device. Check the actual train and use the three
+3. Open the Christmas Train device. Check the actual train and use the three
    sync selectors to record its current state.
 
-The integration is designed for Home Assistant 2025.4 APIs. It is installed
-manually, not through HACS; compatibility with other versions has not been
-verified.
+The integration is designed for Home Assistant 2025.4 APIs; compatibility with
+other versions has not been verified.
 
 ## Commands
 
