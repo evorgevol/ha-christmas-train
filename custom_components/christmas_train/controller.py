@@ -48,15 +48,20 @@ class TrainController:
             raise HomeAssistantError("Stored Christmas train state is invalid")
         self.states = {key: saved[key] for key in STATE_OPTIONS}
 
-    async def _async_set_state(self, key: str, value: str) -> None:
+    async def _async_set_state(
+        self, key: str, value: str, *, notify: bool = True
+    ) -> None:
         self.states[key] = value
+        should_notify = notify
         try:
             await self.store.async_save(dict(self.states))
         except (Exception, asyncio.CancelledError):
             self.states[key] = UNKNOWN
+            should_notify = True
             raise
         finally:
-            async_dispatcher_send(self.hass, self.signal)
+            if should_notify:
+                async_dispatcher_send(self.hass, self.signal)
 
     async def async_sync(self, key: str, value: str) -> None:
         """Record a manually observed state without sending a command."""
@@ -91,21 +96,26 @@ class TrainController:
         old_state = self.states[key] if key else None
         if key:
             # Persist uncertainty before sending, including across interruptions.
-            await self._async_set_state(key, UNKNOWN)
+            await self._async_set_state(key, UNKNOWN, notify=False)
 
-        await self.hass.services.async_call(
-            "remote",
-            "send_command",
-            {
-                "entity_id": self.remote,
-                "device": self.device,
-                "command": command,
-                "num_repeats": repeats,
-                "delay_secs": 1,
-                "hold_secs": 0,
-            },
-            blocking=True,
-        )
+        try:
+            await self.hass.services.async_call(
+                "remote",
+                "send_command",
+                {
+                    "entity_id": self.remote,
+                    "device": self.device,
+                    "command": command,
+                    "num_repeats": repeats,
+                    "delay_secs": 1,
+                    "hold_secs": 0,
+                },
+                blocking=True,
+            )
+        except (Exception, asyncio.CancelledError):
+            if key:
+                async_dispatcher_send(self.hass, self.signal)
+            raise
         if key:
             if result is None:
                 result = {"on": "off", "off": "on"}.get(old_state, UNKNOWN)

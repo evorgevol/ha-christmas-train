@@ -3,7 +3,7 @@
 from homeassistant.components.select import SelectEntity
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import STATE_OPTIONS
+from .const import STATE_OPTIONS, state_label
 from .entity import TrainEntity
 
 NAMES = {
@@ -28,15 +28,19 @@ class TrainStateSelect(TrainEntity, SelectEntity):
         super().__init__(controller, f"sync_{key}")
         self.key = key
         self._attr_name = NAMES[key]
-        self._attr_options = list(STATE_OPTIONS[key])
+        self._options = {
+            state_label(option): option for option in STATE_OPTIONS[key]
+        }
+        self._attr_options = list(self._options)
 
     @property
     def current_option(self):
         """Return the last assumed state."""
-        return self.controller.states[self.key]
+        return state_label(self.controller.states[self.key])
 
     async def async_select_option(self, option: str) -> None:
         """Synchronize with a manually observed state."""
-        if option not in STATE_OPTIONS[self.key]:
+        value = self._options.get(option)
+        if value is None:
             raise HomeAssistantError(f"Invalid {self.key} state: {option}")
-        await self.controller.async_sync(self.key, option)
+        await self.controller.async_sync(self.key, value)

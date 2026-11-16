@@ -13,6 +13,12 @@ STATE_OPTIONS = {
     "steam": TOGGLE_OPTIONS,
 }
 
+
+def state_label(value: str) -> str:
+    """Return a display label for an assumed state."""
+    return value.replace("_", " ").title()
+
+
 # Command, affected state, resulting movement (None means toggle), repeats.
 COMMANDS = {
     "forward": ("1", "movement", "forward", 3),

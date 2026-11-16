@@ -68,15 +68,15 @@ async def check_integration(config_dir: Path) -> None:
 
         toggle = {"entity_id": "button.christmas_train_toggle_forward_stop"}
         await hass.services.async_call("button", "press", toggle, blocking=True)
-        assert hass.states.get("sensor.christmas_train").state == "forward"
+        assert hass.states.get("sensor.christmas_train").state == "Forward"
         assert remote.calls[-1][0] == ["1"]
 
         await hass.services.async_call("button", "press", toggle, blocking=True)
-        assert hass.states.get("sensor.christmas_train").state == "stopped"
+        assert hass.states.get("sensor.christmas_train").state == "Stopped"
         assert remote.calls[-1][0] == ["2"]
 
         await hass.services.async_call("button", "press", toggle, blocking=True)
-        assert hass.states.get("sensor.christmas_train").state == "forward"
+        assert hass.states.get("sensor.christmas_train").state == "Forward"
         assert remote.calls[-1][0] == ["1"]
 
         await hass.services.async_call(
@@ -85,7 +85,7 @@ async def check_integration(config_dir: Path) -> None:
             {"entity_id": "button.christmas_train_forward"},
             blocking=True,
         )
-        assert hass.states.get("sensor.christmas_train").state == "forward"
+        assert hass.states.get("sensor.christmas_train").state == "Forward"
         assert remote.calls[-1][0] == ["1"]
         assert remote.calls[-1][1]["num_repeats"] == 3
         assert remote.calls[-1][1]["device"] == "2"
@@ -93,7 +93,7 @@ async def check_integration(config_dir: Path) -> None:
         await hass.services.async_call(
             "select",
             "select_option",
-            {"entity_id": "select.christmas_train_sync_assumed_light", "option": "off"},
+            {"entity_id": "select.christmas_train_sync_assumed_light", "option": "Off"},
             blocking=True,
         )
         assert len(remote.calls) == 1
@@ -103,14 +103,14 @@ async def check_integration(config_dir: Path) -> None:
             {"entity_id": "button.christmas_train_toggle_light"},
             blocking=True,
         )
-        assert hass.states.get("select.christmas_train_sync_assumed_light").state == "on"
+        assert hass.states.get("select.christmas_train_sync_assumed_light").state == "On"
         assert remote.calls[-1][0] == ["6"]
         assert remote.calls[-1][1]["num_repeats"] == 1
 
         assert await hass.config_entries.async_reload(entry.entry_id)
         await hass.async_block_till_done()
-        assert hass.states.get("sensor.christmas_train").state == "forward"
-        assert hass.states.get("select.christmas_train_sync_assumed_light").state == "on"
+        assert hass.states.get("sensor.christmas_train").state == "Forward"
+        assert hass.states.get("select.christmas_train_sync_assumed_light").state == "On"
     finally:
         await hass.async_stop()
 

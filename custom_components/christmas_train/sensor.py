@@ -2,7 +2,7 @@
 
 from homeassistant.components.sensor import SensorEntity
 
-from .const import UNKNOWN
+from .const import UNKNOWN, state_label
 from .entity import TrainEntity
 
 
@@ -25,4 +25,4 @@ class TrainMovementSensor(TrainEntity, SensorEntity):
     def native_value(self):
         """Return unknown until a movement has been recorded."""
         state = self.controller.states["movement"]
-        return None if state == UNKNOWN else state
+        return None if state == UNKNOWN else state_label(state)

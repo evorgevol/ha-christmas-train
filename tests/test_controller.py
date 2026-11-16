@@ -61,7 +61,12 @@ class MemoryStore:
 
 
 install_home_assistant_doubles()
-controller_module = importlib.import_module("custom_components.christmas_train.controller")
+state_label = importlib.import_module(
+    "custom_components.christmas_train.const"
+).state_label
+controller_module = importlib.import_module(
+    "custom_components.christmas_train.controller"
+)
 TrainController = controller_module.TrainController
 HomeAssistantError = sys.modules["homeassistant.exceptions"].HomeAssistantError
 
@@ -211,6 +216,31 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
             await self.train.async_sync("movement", "stopped")
         self.assertEqual(self.train.states["movement"], "unknown")
         self.assertTrue(self.hass.notifications)
+
+    async def test_command_does_not_publish_unknown_while_in_flight(self):
+        await self.train.async_sync("movement", "forward")
+        self.hass.notifications.clear()
+        entered = asyncio.Event()
+        release = asyncio.Event()
+
+        async def send(*args, **kwargs):
+            entered.set()
+            await release.wait()
+
+        self.hass.services.async_call.side_effect = send
+        task = asyncio.create_task(self.train.async_send("stop"))
+        await entered.wait()
+        self.assertEqual(self.train.states["movement"], "unknown")
+        self.assertEqual(self.hass.notifications, [])
+        release.set()
+        await task
+        self.assertEqual(self.train.states["movement"], "stopped")
+        self.assertEqual(self.hass.notifications, [self.train.signal])
+
+    def test_state_labels_are_title_case(self):
+        self.assertEqual(state_label("stopped"), "Stopped")
+        self.assertEqual(state_label("forward_fast"), "Forward Fast")
+        self.assertEqual(state_label("unknown"), "Unknown")
 
     async def test_commands_and_manual_sync_are_serialized(self):
         entered = asyncio.Event()
