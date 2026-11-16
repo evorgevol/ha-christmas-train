@@ -37,8 +37,9 @@ keep a physical way to stop or disconnect the train.
 4. Open the Christmas Train device. Check the actual train and use the three
    sync selectors to record its current state.
 
-The integration targets Home Assistant 2025.4 or newer. It is installed
-manually, not through HACS.
+The integration is designed for Home Assistant 2025.4 APIs. It is installed
+manually, not through HACS; compatibility with other versions has not been
+verified.
 
 ## Commands
 
@@ -109,6 +110,7 @@ The movement options are `unknown`, `stopped`, `forward`, `forward_fast`, and
 
 The integration has no third-party runtime dependencies. Run its tests with
 `python -m unittest discover -s tests -v`. The isolated tests exercise the
-integration against test doubles; a real Home Assistant installation and the
-actual train are still needed to verify integration compatibility and radio
-behavior.
+integration against test doubles. With Home Assistant 2025.4 installed in a
+Python environment, `python tests/home_assistant_check.py` additionally
+checks the config flow, device registration, actions, and reload against a
+fake remote. The actual train is still needed to verify radio behavior.

@@ -161,6 +161,13 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.train.states["movement"], "forward")
         self.hass.services.async_call.assert_not_called()
 
+    async def test_storage_failure_leaves_state_unknown_and_surfaces_error(self):
+        self.train.store.async_save = AsyncMock(side_effect=OSError("disk full"))
+        with self.assertRaisesRegex(OSError, "disk full"):
+            await self.train.async_sync("movement", "stopped")
+        self.assertEqual(self.train.states["movement"], "unknown")
+        self.assertTrue(self.hass.notifications)
+
     async def test_commands_and_manual_sync_are_serialized(self):
         entered = asyncio.Event()
         release = asyncio.Event()

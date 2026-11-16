@@ -47,6 +47,9 @@ class TrainController:
         self.states[key] = value
         try:
             await self.store.async_save(dict(self.states))
+        except (Exception, asyncio.CancelledError):
+            self.states[key] = UNKNOWN
+            raise
         finally:
             async_dispatcher_send(self.hass, self.signal)
 
