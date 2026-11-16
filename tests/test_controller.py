@@ -127,6 +127,25 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HomeAssistantError):
             await self.train.async_sync("light", "forward")
 
+    async def test_movement_toggle_defaults_unknown_to_forward(self):
+        await self.train.async_toggle_movement()
+        self.assertEqual(self.train.states["movement"], "forward")
+        self.assertEqual(
+            self.hass.services.async_call.await_args.args[2]["command"], "1"
+        )
+
+        await self.train.async_toggle_movement()
+        self.assertEqual(self.train.states["movement"], "stopped")
+        self.assertEqual(
+            self.hass.services.async_call.await_args.args[2]["command"], "2"
+        )
+
+        await self.train.async_toggle_movement()
+        self.assertEqual(self.train.states["movement"], "forward")
+        self.assertEqual(
+            self.hass.services.async_call.await_args.args[2]["command"], "1"
+        )
+
     async def test_restoration_and_invalid_data(self):
         await self.train.async_sync("movement", "reverse")
         await self.train.async_sync("steam", "on")

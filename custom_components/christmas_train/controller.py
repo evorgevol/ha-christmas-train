@@ -62,34 +62,45 @@ class TrainController:
 
     async def async_send(self, command_name: str) -> None:
         """Send a mapped command, leaving ambiguous outcomes unknown."""
-        command, key, result, repeats = COMMANDS[command_name]
         async with self.lock:
-            remote_state = self.hass.states.get(self.remote)
-            if remote_state is None or remote_state.state in (
-                STATE_UNAVAILABLE,
-                STATE_UNKNOWN,
-            ):
-                raise HomeAssistantError(f"Remote {self.remote} is unavailable")
+            await self._async_send_locked(command_name)
 
-            old_state = self.states[key] if key else None
-            if key:
-                # Persist uncertainty before sending, including across interruptions.
-                await self._async_set_state(key, UNKNOWN)
-
-            await self.hass.services.async_call(
-                "remote",
-                "send_command",
-                {
-                    "entity_id": self.remote,
-                    "device": self.device,
-                    "command": command,
-                    "num_repeats": repeats,
-                    "delay_secs": 1,
-                    "hold_secs": 0,
-                },
-                blocking=True,
+    async def async_toggle_movement(self) -> None:
+        """Toggle between forward and stopped movement."""
+        async with self.lock:
+            command = (
+                "stop" if self.states["movement"] == "forward" else "forward"
             )
-            if key:
-                if result is None:
-                    result = {"on": "off", "off": "on"}.get(old_state, UNKNOWN)
-                await self._async_set_state(key, result)
+            await self._async_send_locked(command)
+
+    async def _async_send_locked(self, command_name: str) -> None:
+        command, key, result, repeats = COMMANDS[command_name]
+        remote_state = self.hass.states.get(self.remote)
+        if remote_state is None or remote_state.state in (
+            STATE_UNAVAILABLE,
+            STATE_UNKNOWN,
+        ):
+            raise HomeAssistantError(f"Remote {self.remote} is unavailable")
+
+        old_state = self.states[key] if key else None
+        if key:
+            # Persist uncertainty before sending, including across interruptions.
+            await self._async_set_state(key, UNKNOWN)
+
+        await self.hass.services.async_call(
+            "remote",
+            "send_command",
+            {
+                "entity_id": self.remote,
+                "device": self.device,
+                "command": command,
+                "num_repeats": repeats,
+                "delay_secs": 1,
+                "hold_secs": 0,
+            },
+            blocking=True,
+        )
+        if key:
+            if result is None:
+                result = {"on": "off", "off": "on"}.get(old_state, UNKNOWN)
+            await self._async_set_state(key, result)

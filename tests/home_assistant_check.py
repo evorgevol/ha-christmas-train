@@ -63,8 +63,21 @@ async def check_integration(config_dir: Path) -> None:
             device_registry.async_get(hass), entry.entry_id
         )
         assert len(devices) == 1
-        assert len(entities) == 11
+        assert len(entities) == 12
         assert hass.states.get("sensor.christmas_train").state == "unknown"
+
+        toggle = {"entity_id": "button.christmas_train_toggle_forward_stop"}
+        await hass.services.async_call("button", "press", toggle, blocking=True)
+        assert hass.states.get("sensor.christmas_train").state == "forward"
+        assert remote.calls[-1][0] == ["1"]
+
+        await hass.services.async_call("button", "press", toggle, blocking=True)
+        assert hass.states.get("sensor.christmas_train").state == "stopped"
+        assert remote.calls[-1][0] == ["2"]
+
+        await hass.services.async_call("button", "press", toggle, blocking=True)
+        assert hass.states.get("sensor.christmas_train").state == "forward"
+        assert remote.calls[-1][0] == ["1"]
 
         await hass.services.async_call(
             "button",

@@ -16,9 +16,11 @@ the displayed state wrong. Do not rely on it for safety.
 States start unknown and are restored across Home Assistant restarts. Observe
 the train and use the **Sync assumed movement**, **Sync assumed light**, and
 **Sync assumed steam** selectors to correct them; selecting a value never
-sends a command. If the Light or Steam state is unknown, its toggle button
-keeps it unknown until you synchronize it. Noise cycles through its three modes
-but is not tracked.
+sends a command. The **Toggle forward/stop** button stops when movement is
+assumed to be forward; otherwise, including when unknown, it sends Forward.
+If the Light or Steam state is unknown, its toggle button keeps it unknown
+until you synchronize it. Noise cycles through its three modes but is not
+tracked.
 
 Commands are serialized. While a command is being sent, the affected assumed
 state is set to unknown; if the send reports an error, the state stays unknown
@@ -66,6 +68,9 @@ other versions has not been verified.
 | Toggle light | 6 | 1 |
 | Cycle noise | 7 | 1 |
 
+**Toggle forward/stop** sends Forward unless movement is assumed to be forward,
+in which case it sends Stop.
+
 Each action uses `delay_secs: 1` and `hold_secs: 0`. First test each command
 with the train in a safe, accessible position. In particular, verify whether
 one repeat reliably triggers the toggle commands once: how a receiver handles
@@ -85,6 +90,7 @@ title: Christmas Train
 entities:
   - entity: sensor.christmas_train
     name: Assumed movement
+  - button.christmas_train_toggle_forward_stop
   - button.christmas_train_forward
   - button.christmas_train_forward_fast
   - button.christmas_train_reverse
@@ -105,6 +111,36 @@ action: button.press
 target:
   entity_id: button.christmas_train_forward
 ```
+
+### Run the train when a door opens
+
+Paste this into an automation's YAML editor. Replace the entity IDs if needed.
+Each opening restarts the 60-second countdown, so the train stops 60 seconds
+after the most recent opening, even if the door stays open.
+
+```yaml
+alias: Christmas train - door opened
+description: Run the train for 60 seconds after the latest door opening.
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.ikea_door_6_contact
+    from: "off"
+    to: "on"
+conditions: []
+actions:
+  - action: button.press
+    target:
+      entity_id: button.living_room_christmas_train_forward
+  - delay: "00:01:00"
+  - action: button.press
+    target:
+      entity_id: button.living_room_christmas_train_stop
+mode: restart
+```
+
+Forward is a movement command, not a power toggle, so sending it again keeps
+the train moving. Home Assistant restarts or automation reloads cancel the
+pending delay and stop action; keep a physical way to stop the train.
 
 To manually correct an assumption without moving the train:
 
