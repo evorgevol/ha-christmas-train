@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Christmas Train",
+        "description": "Choose the remote and the device ID configured in Sofabaton. States are assumed, not reported by the train.",
+        "data": {
+          "remote_entity": "Remote entity",
+          "remote_device": "Sofabaton device ID"
+        }
+      }
+    },
+    "error": {
+      "remote_not_found": "The selected remote does not exist.",
+      "invalid_device": "Enter a device ID."
+    },
+    "abort": {
+      "already_configured": "This remote and device ID are already configured."
+    }
+  }
+}
