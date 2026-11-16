@@ -11,6 +11,7 @@ from homeassistant.helpers.storage import Store
 
 from .const import (
     COMMANDS,
+    COMMAND_CONFIG_KEYS,
     CONF_REMOTE_DEVICE,
     CONF_REMOTE_ENTITY,
     DOMAIN,
@@ -27,6 +28,10 @@ class TrainController:
         self.entry_id = entry.entry_id
         self.remote = entry.data[CONF_REMOTE_ENTITY]
         self.device = entry.data[CONF_REMOTE_DEVICE]
+        self.command_ids = {
+            name: entry.data.get(config_key, COMMANDS[name][0])
+            for name, config_key in COMMAND_CONFIG_KEYS.items()
+        }
         self.signal = f"{DOMAIN}_{entry.entry_id}_updated"
         self.store = Store(hass, 1, f"{DOMAIN}.{entry.entry_id}")
         self.states = dict.fromkeys(STATE_OPTIONS, UNKNOWN)
@@ -74,7 +79,8 @@ class TrainController:
             await self._async_send_locked(command)
 
     async def _async_send_locked(self, command_name: str) -> None:
-        command, key, result, repeats = COMMANDS[command_name]
+        _, key, result, repeats = COMMANDS[command_name]
+        command = self.command_ids[command_name]
         remote_state = self.hass.states.get(self.remote)
         if remote_state is None or remote_state.state in (
             STATE_UNAVAILABLE,

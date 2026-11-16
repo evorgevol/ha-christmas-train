@@ -23,3 +23,12 @@ COMMANDS = {
     "light": ("6", "light", None, 1),
     "noise": ("7", None, None, 1),
 }
+COMMAND_CONFIG_KEYS = {
+    "forward": "command_forward",
+    "stop": "command_stop",
+    "reverse": "command_reverse",
+    "steam": "command_steam",
+    "forward_fast": "command_forward_fast",
+    "light": "command_light",
+    "noise": "command_noise",
+}

@@ -3,16 +3,24 @@
     "step": {
       "user": {
         "title": "Christmas Train",
-        "description": "Choose the remote and the device ID configured in Sofabaton. States are assumed, not reported by the train.",
+        "description": "Choose the remote, Sofabaton device ID, and command IDs. Command IDs default to the current Christmas Train setup. States are assumed, not reported by the train.",
         "data": {
           "remote_entity": "Remote entity",
-          "remote_device": "Sofabaton device ID"
+          "remote_device": "Sofabaton device ID",
+          "command_forward": "Forward command ID",
+          "command_stop": "Stop command ID",
+          "command_reverse": "Reverse command ID",
+          "command_steam": "Toggle steam command ID",
+          "command_forward_fast": "Forward fast command ID",
+          "command_light": "Toggle light command ID",
+          "command_noise": "Cycle noise command ID"
         }
       }
     },
     "error": {
       "remote_not_found": "The selected remote does not exist.",
-      "invalid_device": "Enter a device ID."
+      "invalid_device": "Enter a device ID.",
+      "invalid_command": "Enter a command ID."
     },
     "abort": {
       "already_configured": "This remote and device ID are already configured."

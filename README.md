@@ -48,8 +48,9 @@ keep a physical way to stop or disconnect the train.
 
 1. Under **Settings > Devices & services > Add
    integration**, search for **Christmas Train**.
-2. Select `remote.x2_hub_remote` and enter Sofabaton device ID `2`, or supply
-   the equivalent values for your setup.
+2. Select `remote.x2_hub_remote` and enter Sofabaton device ID `2`. Set each
+   command ID to match your Sofabaton setup, or keep the defaults (`1` through
+   `7`) for the current Christmas Train configuration.
 3. Open the Christmas Train device. Check the actual train and use the three
    sync selectors to record its current state.
 
@@ -69,14 +70,15 @@ other versions has not been verified.
 | Cycle noise | 7 | 1 |
 
 **Toggle forward/stop** sends Forward unless movement is assumed to be forward,
-in which case it sends Stop.
+in which case it sends Stop. The command IDs can be set independently in the
+integration setup.
 
 Each action uses `delay_secs: 1` and `hold_secs: 0`. First test each command
 with the train in a safe, accessible position. In particular, verify whether
 one repeat reliably triggers the toggle commands once: how a receiver handles
-repeats is hardware-dependent. To change a repeat count, edit the corresponding
-entry in `custom_components/christmas_train/const.py`, restart Home Assistant,
-and test again. Do not assume repeated toggle signals are harmless.
+repeats is hardware-dependent. Repeat counts are currently fixed in
+`custom_components/christmas_train/const.py`. Do not assume repeated toggle
+signals are harmless.
 
 ## Dashboard
 

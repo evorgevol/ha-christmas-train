@@ -111,6 +111,31 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
                 if movement is not None:
                     self.assertEqual(self.train.states["movement"], movement)
 
+    async def test_configured_command_ids_are_used(self):
+        self.entry.data.update(
+            {
+                "command_forward": "A",
+                "command_stop": "B",
+                "command_reverse": "C",
+                "command_steam": "D",
+                "command_forward_fast": "E",
+                "command_light": "F",
+                "command_noise": "G",
+            }
+        )
+        self.train = TrainController(self.hass, self.entry)
+
+        for name, command_id in zip(
+            ("forward", "stop", "reverse", "steam", "forward_fast", "light", "noise"),
+            ("A", "B", "C", "D", "E", "F", "G"),
+        ):
+            with self.subTest(name=name):
+                await self.train.async_send(name)
+                self.assertEqual(
+                    self.hass.services.async_call.await_args.args[2]["command"],
+                    command_id,
+                )
+
     async def test_toggle_unknown_and_manual_sync(self):
         await self.train.async_send("light")
         self.assertEqual(self.train.states["light"], "unknown")
